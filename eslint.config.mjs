@@ -6,7 +6,17 @@ import eslintConfigPrettier from 'eslint-config-prettier';
 
 export default tseslint.config(
   // Ignore build output and config files
-  { ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'eslint.config.mjs', 'prettier.config.cjs', 'vitest.config.ts', 'jest.config.cjs'] },
+  {
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      'eslint.config.mjs',
+      'prettier.config.cjs',
+      'vitest.config.ts',
+      'jest.config.cjs',
+    ],
+  },
 
   // Base JS rules
   js.configs.recommended,
@@ -48,4 +58,3 @@ export default tseslint.config(
     rules: {},
   },
 );
-

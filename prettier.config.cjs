@@ -8,4 +8,3 @@ module.exports = {
   endOfLine: 'lf',
   arrowParens: 'always',
 };
-

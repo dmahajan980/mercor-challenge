@@ -42,21 +42,23 @@ pnpm run test
 ## Requirements, Constraints, and Assumptions
 
 **User**
+
 1. Has an unique identity.
-3. Can refer other users.
-4. Cannot refer self.
-5. Can be referred by one user only.
+2. Can refer other users.
+3. Cannot refer self.
+4. Can be referred by one user only.
 
 **Referral Network**
+
 1. Can add new users.
 2. Can query for existing users' details.
 3. Can get direct referrals of a given user.
 4. Can add directed, referral links from referrer to another user.
-4. Can delete users.
+5. Can delete users.
    - Assumption: Referrals will not have a referrer once the original referrer is deleted.
-5. Should be acyclic.
+6. Should be acyclic.
    - Reject any operation which creates a cycle.
-   
+
 ## Design Choices
 
 ### Core Data Structure: Forest
@@ -123,6 +125,7 @@ const network = new ReferralNetwork();
   - Throws error if:
     - Referrer with ID `referrerId` does not exist
     - User with ID `userId` does not exist.
+    - User already has a referrer.
     - When the link would introduce a cycle.
   - Time: O(depth) (walks up the referrer chain to prevent cycles)
   - Space: O(1) auxiliary
@@ -142,18 +145,17 @@ const network = new ReferralNetwork();
 network.registerUser('A');
 
 // Add referred users
-network.registerUser('B', 'A');                       // Registers B with A as its referrer
-network.registerUser('C', 'A');                       // Registers C with A as its referrer
+network.registerUser('B', 'A'); // Registers B with A as its referrer
+network.registerUser('C', 'A'); // Registers C with A as its referrer
 
 // Link an existing user to a referrer
 network.registerUser('D');
-network.linkUserToReferrer('A', 'D');                 // Links D as the referrer of A
+network.linkUserToReferrer('A', 'D'); // Links D as the referrer of A
 
 // Query
-const a = network.getUserDetails('A');                // { id: 'A', referrerId: 'D' }
-const aDirect = network.getDirectReferrals('A');      // ['B','C','D']
+const a = network.getUserDetails('A'); // { id: 'A', referrerId: 'D' }
+const aDirect = network.getDirectReferrals('A'); // ['B','C','D']
 
 // Delete
-network.deleteUser('C');                              // 'C' is removed; its referrals (if any) become roots
+network.deleteUser('C'); // 'C' is removed; its referrals (if any) become roots
 ```
-

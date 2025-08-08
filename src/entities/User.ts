@@ -18,14 +18,22 @@ interface UserDetails {
 /** @see {@link UserDetails} for the user details object. */
 class User implements UserDetails {
   private _id: ID;
-  public get id() { return this._id; }
+  public get id() {
+    return this._id;
+  }
 
   private _referrerId: ID | null;
-  public get referrerId() { return this._referrerId; }
-  public set referrerId(referrerId: ID | null) { this._referrerId = referrerId; }
+  public get referrerId() {
+    return this._referrerId;
+  }
+  public set referrerId(referrerId: ID | null) {
+    this._referrerId = referrerId;
+  }
 
   private _referrals: Set<ID>;
-  public get referrals() { return this._referrals; }
+  public get referrals() {
+    return this._referrals;
+  }
 
   /**
    * Creates a new user in the referral network.

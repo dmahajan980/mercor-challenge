@@ -81,6 +81,7 @@ class ReferralNetwork {
    * @param {ID} userId - The ID of the user to link to the referrer.
    * @throws {Error} If the referrer is not found.
    * @throws {Error} If the user is not found.
+   * @throws {Error} If the user already has a referrer.
    * @throws {Error} If the link would create a cycle.
    */
   public linkUserToReferrer(referrerId: ID, userId: ID): void {
@@ -91,6 +92,11 @@ class ReferralNetwork {
 
     // Get the user to link to the referrer
     const user = this._getUser(userId);
+
+    // Check if the user already has a referrer
+    if (user.referrerId) {
+      throw new Error(`User ${userId} already has a referrer`);
+    }
 
     // Check if there exists a path from the user to the referrer. This is to prevent cycles
     // that would be created by linking the user to the referrer.
@@ -121,6 +127,12 @@ class ReferralNetwork {
         referralUser.referrerId = null;
       }
     });
+
+    // Remove the user from the referrer's referrals
+    if (user.referrerId) {
+      const referrer = this._getUser(user.referrerId);
+      referrer.removeReferral(id);
+    }
 
     // Delete the user from the network
     this._users.delete(id);
@@ -166,7 +178,7 @@ class ReferralNetwork {
       if (options.readSilently) return null;
       throw new Error(`User ${id} not found`);
     }
-    
+
     return user;
   }
 }
