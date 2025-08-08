@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "declaration": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "isolatedModules": true,
+    "types": ["node", "jest"]
+  },
+  "include": ["src", "test"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "coverage",
+    "eslint.config.mjs",
+    "prettier.config.cjs",
+    "vitest.config.ts",
+    "jest.config.ts"
+  ]
+}
+
