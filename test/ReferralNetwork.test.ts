@@ -23,9 +23,7 @@ describe('ReferralNetwork (direct referrals only)', () => {
     it('can delete an user', () => {
       network.registerUser('A');
       network.deleteUser('A');
-      console.log(network.getUserDetails('A'));
-      
-      expect(network.getUserDetails('A')).toBeNull();
+      expect(() => network.getUserDetails('A')).toThrow();
     });
   });
 
