@@ -38,3 +38,23 @@ pnpm run format
 ```sh
 pnpm run test
 ```
+
+### Requirements, Constraints, and Assumptions
+
+**User**
+
+1. Has an unique identity.
+3. Can refer other users.
+4. Cannot refer self.
+5. Can be referred by one user only.
+
+**Referral Network**
+
+1. Can add new users.
+2. Can query for existing users' details.
+3. Can get direct referrals of a given user.
+4. Can add directed, referral links from referrer to another user.
+4. Can delete users.
+   - Assumption: Referrals will not be able to see their referrer once the referrer is deleted.
+5. Should be acyclic.
+   - Reject any operation which creates a cycle.
