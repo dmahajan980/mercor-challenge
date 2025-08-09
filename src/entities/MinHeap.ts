@@ -34,7 +34,7 @@ class MinHeap<T> {
     if (this.size === 0) {
       throw new Error('Heap is empty');
     }
-    
+
     return this.heap[0];
   }
 
@@ -142,7 +142,10 @@ class MinHeap<T> {
     let currentIndex = index;
 
     // Process only if the node has a parent and the current node is smaller than the parent.
-    while (this._hasParent(currentIndex) && this.compare(this.heap[currentIndex], this.heap[parentIndex]) < 0) {
+    while (
+      this._hasParent(currentIndex) &&
+      this.compare(this.heap[currentIndex], this.heap[parentIndex]) < 0
+    ) {
       // Move the current element up the heap.
       this._swap(currentIndex, parentIndex);
       currentIndex = parentIndex;
@@ -157,13 +160,19 @@ class MinHeap<T> {
    */
   private _heapifyDown(index: number): void {
     let currentIndex = index;
-    
+
     // Process only if the node has at least one child.
     while (this._hasLeftChild(currentIndex)) {
       let smallerChildIndex = this._getLeftChildIndex(currentIndex);
 
       // If the node has a right child, and it's smaller than the left child, use the right child.
-      if (this._hasRightChild(currentIndex) && this.compare(this.heap[this._getRightChildIndex(currentIndex)], this.heap[smallerChildIndex]) < 0) {
+      if (
+        this._hasRightChild(currentIndex) &&
+        this.compare(
+          this.heap[this._getRightChildIndex(currentIndex)],
+          this.heap[smallerChildIndex],
+        ) < 0
+      ) {
         smallerChildIndex = this._getRightChildIndex(currentIndex);
       }
 

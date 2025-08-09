@@ -60,56 +60,56 @@ describe('ReferralNetwork - Full Network Reach', () => {
     });
 
     it('computes the total referral count for a linear network', () => {
-        const net = new ReferralNetwork();
-        // A -> B -> C -> D -> E
-        net.registerUser('A');
-        net.registerUser('B', 'A');
-        net.registerUser('C', 'B');
-        net.registerUser('D', 'C');
-        net.registerUser('E', 'D');
+      const net = new ReferralNetwork();
+      // A -> B -> C -> D -> E
+      net.registerUser('A');
+      net.registerUser('B', 'A');
+      net.registerUser('C', 'B');
+      net.registerUser('D', 'C');
+      net.registerUser('E', 'D');
 
-        expect(net.getTotalReferralCount('A')).toBe(4);
-        expect(net.getTotalReferralCount('B')).toBe(3);
-        expect(net.getTotalReferralCount('C')).toBe(2);
-        expect(net.getTotalReferralCount('D')).toBe(1);
-        expect(net.getTotalReferralCount('E')).toBe(0);
+      expect(net.getTotalReferralCount('A')).toBe(4);
+      expect(net.getTotalReferralCount('B')).toBe(3);
+      expect(net.getTotalReferralCount('C')).toBe(2);
+      expect(net.getTotalReferralCount('D')).toBe(1);
+      expect(net.getTotalReferralCount('E')).toBe(0);
     });
 
     it('computes the total referral count across disjoint components', () => {
-        const net = new ReferralNetwork();
-        // Component 1: A -> (B -> D, C -> E)
-        net.registerUser('A');
-        net.registerUser('B', 'A');
-        net.registerUser('C', 'A');
+      const net = new ReferralNetwork();
+      // Component 1: A -> (B -> D, C -> E)
+      net.registerUser('A');
+      net.registerUser('B', 'A');
+      net.registerUser('C', 'A');
 
-        // Component 2: X -> (Y, Z)
-        net.registerUser('X');
-        net.registerUser('Y', 'X');
-        net.registerUser('Z', 'X');
+      // Component 2: X -> (Y, Z)
+      net.registerUser('X');
+      net.registerUser('Y', 'X');
+      net.registerUser('Z', 'X');
 
-        expect(net.getTotalReferralCount('A')).toBe(2);
-        expect(net.getTotalReferralCount('B')).toBe(0);
-        expect(net.getTotalReferralCount('C')).toBe(0);
-        expect(net.getTotalReferralCount('X')).toBe(2);
-        expect(net.getTotalReferralCount('Y')).toBe(0);
-        expect(net.getTotalReferralCount('Z')).toBe(0);
+      expect(net.getTotalReferralCount('A')).toBe(2);
+      expect(net.getTotalReferralCount('B')).toBe(0);
+      expect(net.getTotalReferralCount('C')).toBe(0);
+      expect(net.getTotalReferralCount('X')).toBe(2);
+      expect(net.getTotalReferralCount('Y')).toBe(0);
+      expect(net.getTotalReferralCount('Z')).toBe(0);
     });
 
     it('updates the total referral count after deletions', () => {
-        const net = new ReferralNetwork();
-        net.registerUser('A');
-        net.registerUser('B', 'A');
-        net.registerUser('C', 'A');
+      const net = new ReferralNetwork();
+      net.registerUser('A');
+      net.registerUser('B', 'A');
+      net.registerUser('C', 'A');
 
-        expect(net.getTotalReferralCount('A')).toBe(2);
-        expect(net.getTotalReferralCount('B')).toBe(0);
-        expect(net.getTotalReferralCount('C')).toBe(0);
+      expect(net.getTotalReferralCount('A')).toBe(2);
+      expect(net.getTotalReferralCount('B')).toBe(0);
+      expect(net.getTotalReferralCount('C')).toBe(0);
 
-        net.deleteUser('B');
+      net.deleteUser('B');
 
-        expect(net.getTotalReferralCount('A')).toBe(1);
-        expect(net.getTotalReferralCount('C')).toBe(0);
-        expect(() => net.getTotalReferralCount('B')).toThrow();
+      expect(net.getTotalReferralCount('A')).toBe(1);
+      expect(net.getTotalReferralCount('C')).toBe(0);
+      expect(() => net.getTotalReferralCount('B')).toThrow();
     });
   });
 

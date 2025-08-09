@@ -1,24 +1,20 @@
-import { User } from './entities/User';
-import { MinHeap } from './entities/MinHeap';
+import { ReferralNetworkOperations, User, MinHeap, ReferralMetrics } from './entities';
 import type { ID, UserDetails, UserReach } from './types';
 
-class ReferralNetwork {
+/**
+ * A referral network implementation.
+ * @implements {ReferralNetworkOperations}
+ * @implements {ReferralMetrics}
+ */
+class ReferralNetwork implements ReferralNetworkOperations, ReferralMetrics {
   /**
    * A map of users in the referral network.
-   * The key is the user's ID, and the value is the user details object.
+   * The key is the user's ID, and the value is the user class instance.
    */
   private _users: Map<ID, User> = new Map();
 
-  /**
-   * Gets an user's details from the referral network.
-   *
-   * @param {ID} id - The ID of the user to get.
-   * @returns {Omit<UserDetails, 'referrals'>} The user details object (without referrals info).
-   * @throws {Error} If the user is not found.
-   *
-   * @see {@link UserDetails} for the user details object.
-   */
-  public getUserDetails(id: ID): Omit<UserDetails, 'referrals'> {
+  /** @inheritdoc */
+  getUserDetails(id: ID): Omit<UserDetails, 'referrals'> {
     const details = this._getUser(id);
     return {
       id: details.id,
@@ -26,16 +22,8 @@ class ReferralNetwork {
     };
   }
 
-  /**
-   * Registers a new user in the referral network.
-   *
-   * @param {ID} id - The ID of the user. If not provided, a random ID will be generated.
-   * @param {ID} referrerId - The ID of the user's referrer. If not provided, the user will be a root user.
-   * @throws {Error} If the referrer is not found.
-   * @throws {Error} If the user already exists.
-   * @throws {Error} If the user is trying to be a referrer of itself.
-   */
-  public registerUser(id?: ID, referrerId?: ID): void {
+  /** @inheritdoc */
+  registerUser(id?: ID, referrerId?: ID): void {
     // Check if the referrer exists
     if (referrerId && !this._getUser(referrerId, { readSilently: true })) {
       throw new Error(`Referrer ${referrerId} not found`);
@@ -63,29 +51,14 @@ class ReferralNetwork {
     }
   }
 
-  /**
-   * Gets the direct referrals for a user.
-   *
-   * @param {ID} id - The ID of the user.
-   * @returns {ID[]} The IDs of the user's direct referrals.
-   * @throws {Error} If the user is not found.
-   */
-  public getDirectReferrals(id: ID): ID[] {
+  /** @inheritdoc */
+  getDirectReferrals(id: ID): ID[] {
     const user = this._getUser(id);
     return Array.from(user.referrals);
   }
 
-  /**
-   * Links a user to a referrer.
-   *
-   * @param {ID} referrerId - The ID of the referrer.
-   * @param {ID} userId - The ID of the user to link to the referrer.
-   * @throws {Error} If the referrer is not found.
-   * @throws {Error} If the user is not found.
-   * @throws {Error} If the user already has a referrer.
-   * @throws {Error} If the link would create a cycle.
-   */
-  public linkUserToReferrer(referrerId: ID, userId: ID): void {
+  /** @inheritdoc */
+  linkUserToReferrer(referrerId: ID, userId: ID): void {
     const referrer = this._getUser(referrerId, { readSilently: true });
     if (!referrer) {
       throw new Error(`Referrer ${referrerId} not found`);
@@ -112,13 +85,8 @@ class ReferralNetwork {
     user.referrerId = referrerId;
   }
 
-  /**
-   * Deletes an user from the referral network.
-   *
-   * @param {ID} id - The ID of the user to delete.
-   * @throws {Error} If the user is not found.
-   */
-  public deleteUser(id: ID): void {
+  /** @inheritdoc */
+  deleteUser(id: ID): void {
     const user = this._getUser(id);
 
     // Remove the user from the referrals of the users that the user has referred
@@ -139,14 +107,8 @@ class ReferralNetwork {
     this._users.delete(id);
   }
 
-  /**
-   * Gets the total referral count for a user.
-   *
-   * @param {ID} id - The ID of the user to get the total referral count for.
-   * @returns {number} The total referral count for the user.
-   * @throws {Error} If the user is not found.
-   */
-  public getTotalReferralCount(id: ID): number {
+  /** @inheritdoc */
+  getTotalReferralCount(id: ID): number {
     const user = this._getUser(id);
 
     let count = user.referrals.size;
@@ -158,13 +120,8 @@ class ReferralNetwork {
     return count;
   }
 
-  /**
-   * Gets the top k referrers by total referral count.
-   *
-   * @param {number} k - The number of referrers to get.
-   * @returns {ID[]} The IDs of the top k referrers.
-   */
-  public getTopReferrersByReach(k: number): ID[] {
+  /** @inheritdoc */
+  getTopReferrersByReach(k: number): ID[] {
     // Maintains a min heap of the top k referrers by total referral count.
     const topReferrers = new MinHeap<UserReach>((a, b) => a.reach - b.reach);
 
@@ -175,17 +132,17 @@ class ReferralNetwork {
       if (reachCountCache.has(id)) {
         return reachCountCache.get(id)!;
       }
-      
+
       const user = this._getUser(id);
 
       let reach = user.referrals.size;
       for (const referralId of user.referrals) {
         reach += computeReach(referralId);
       }
-      
+
       // Cache the reach.
       reachCountCache.set(id, reach);
-      
+
       // Add the reach to the top referrers heap.
       topReferrers.add({ id, reach });
 
@@ -195,8 +152,8 @@ class ReferralNetwork {
       }
 
       return reach;
-    }
-    
+    };
+
     // Iterate over all users and compute their reach.
     for (const user of this._users.values()) {
       computeReach(user.id);
@@ -210,7 +167,7 @@ class ReferralNetwork {
       topReferrersArray[index--] = topReferrers.peek().id;
       topReferrers.remove();
     }
-    
+
     return topReferrersArray;
   }
 
