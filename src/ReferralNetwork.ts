@@ -1,5 +1,6 @@
-import { User, UserDetails } from './entities/User';
-import { ID } from './types';
+import { User } from './entities/User';
+import { MinHeap } from './entities/MinHeap';
+import type { ID, UserDetails, UserReach } from './types';
 
 class ReferralNetwork {
   /**
@@ -136,6 +137,81 @@ class ReferralNetwork {
 
     // Delete the user from the network
     this._users.delete(id);
+  }
+
+  /**
+   * Gets the total referral count for a user.
+   *
+   * @param {ID} id - The ID of the user to get the total referral count for.
+   * @returns {number} The total referral count for the user.
+   * @throws {Error} If the user is not found.
+   */
+  public getTotalReferralCount(id: ID): number {
+    const user = this._getUser(id);
+
+    let count = user.referrals.size;
+    for (const referralId of user.referrals) {
+      // Add the total referral count of the referred users.
+      count += this.getTotalReferralCount(referralId);
+    }
+
+    return count;
+  }
+
+  /**
+   * Gets the top k referrers by total referral count.
+   *
+   * @param {number} k - The number of referrers to get.
+   * @returns {ID[]} The IDs of the top k referrers.
+   */
+  public getTopReferrersByReach(k: number): ID[] {
+    // Maintains a min heap of the top k referrers by total referral count.
+    const topReferrers = new MinHeap<UserReach>((a, b) => a.reach - b.reach);
+
+    // Helper function to compute the reach of a user.
+    const reachCountCache = new Map<ID, number>();
+    const computeReach = (id: ID): number => {
+      // Check if the reach is already cached.
+      if (reachCountCache.has(id)) {
+        return reachCountCache.get(id)!;
+      }
+      
+      const user = this._getUser(id);
+
+      let reach = user.referrals.size;
+      for (const referralId of user.referrals) {
+        reach += computeReach(referralId);
+      }
+      
+      // Cache the reach.
+      reachCountCache.set(id, reach);
+      
+      // Add the reach to the top referrers heap.
+      topReferrers.add({ id, reach });
+
+      // If the heap is full, remove the smallest element.
+      if (topReferrers.size > k) {
+        topReferrers.remove();
+      }
+
+      return reach;
+    }
+    
+    // Iterate over all users and compute their reach.
+    for (const user of this._users.values()) {
+      computeReach(user.id);
+    }
+
+    // Return the top k referrers.
+    const size = Math.min(k, topReferrers.size);
+    const topReferrersArray: ID[] = new Array(size);
+    let index = size - 1;
+    while (topReferrers.size > 0) {
+      topReferrersArray[index--] = topReferrers.peek().id;
+      topReferrers.remove();
+    }
+    
+    return topReferrersArray;
   }
 
   /**

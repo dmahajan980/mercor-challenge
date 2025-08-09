@@ -1,6 +1,6 @@
 import { ReferralNetwork } from '../src/ReferralNetwork';
 
-describe('ReferralNetwork', () => {
+describe('ReferralNetwork - Referral Graph', () => {
   let network: ReferralNetwork;
 
   beforeEach(() => {

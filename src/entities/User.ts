@@ -1,19 +1,4 @@
-import { ID } from '../types';
-
-/** The details of an user in the referral network. */
-interface UserDetails {
-  /** The unique identifier for the user. */
-  readonly id: ID;
-
-  /**
-   * The unique identifier for the user's referrer.
-   * This will be undefined if the user is the root user, or if the user has not been referred.
-   */
-  readonly referrerId: ID | null;
-
-  /** The unique identifiers for the users that the user has referred. */
-  readonly referrals: Set<ID>;
-}
+import { ID, UserDetails } from '../types';
 
 /** @see {@link UserDetails} for the user details object. */
 class User implements UserDetails {
@@ -70,4 +55,3 @@ class User implements UserDetails {
 }
 
 export { User };
-export type { UserDetails };

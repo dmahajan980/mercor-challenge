@@ -136,6 +136,19 @@ const network = new ReferralNetwork();
   - Time: O(out-degree) (iterates direct referrals to nullify their `referrerId`)
   - Space: O(1) auxiliary
 
+- **`getTotalReferralCount(id: ID): number`**
+  - Returns the total number of referrals (direct + indirect) under the given user.
+  - Throws error if the user with input ID does not exist.
+  - Time: O(reach(id)) — visits each descendant once
+  - Space: O(height) recursion stack
+
+- **`getTopReferrersByReach(k: number): ID[]`**
+  - Returns the IDs of the top `k` users by total referral count (descendants). If `k` exceeds the number of
+    users, returns all users ordered by reach.
+  - Time: O(U + E + U log k) — memoized tree walks plus heap maintenance
+    (U = total users, E = total edges / referral links)
+  - Space: O(U + k) auxiliary plus O(height) recursion stack
+
 #### Example
 
 ```ts
