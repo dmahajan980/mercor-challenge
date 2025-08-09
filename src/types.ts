@@ -15,15 +15,6 @@ interface UserDetails {
   readonly referrals: Set<ID>;
 }
 
-/** The reach of an user in the referral network. */
-interface UserReach {
-  /** The ID of the user. */
-  id: ID;
-
-  /** The reach of the user, i.e. the total number of direct and indirect referrals. */
-  reach: number;
-}
-
 /** The score of an user in the referral network based on a metric. */
 interface UserWithScore {
   /** The ID of the user. */
@@ -33,4 +24,4 @@ interface UserWithScore {
   score: number;
 }
 
-export type { ID, UserDetails, UserReach, UserWithScore };
+export type { ID, UserDetails, UserWithScore };

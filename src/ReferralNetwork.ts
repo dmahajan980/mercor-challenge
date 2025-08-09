@@ -1,5 +1,5 @@
 import { ReferralNetworkOperations, User, MinHeap, ReferralMetrics } from './entities';
-import type { ID, UserDetails, UserReach, UserWithScore } from './types';
+import type { ID, UserDetails, UserWithScore } from './types';
 
 /**
  * A referral network implementation.
@@ -121,9 +121,9 @@ class ReferralNetwork implements ReferralNetworkOperations, ReferralMetrics {
   }
 
   /** @inheritdoc */
-  getTopReferrersByReach(k: number): ID[] {
+  getTopReferrersByReach(k: number): UserWithScore[] {
     // Maintains a min heap of the top k referrers by total referral count.
-    const topReferrers = new MinHeap<UserReach>((a, b) => a.reach - b.reach);
+    const topReferrers = new MinHeap<UserWithScore>((a, b) => a.score - b.score);
 
     // Helper function to compute the reach of a user.
     const reachCountCache = new Map<ID, number>();
@@ -144,7 +144,7 @@ class ReferralNetwork implements ReferralNetworkOperations, ReferralMetrics {
       reachCountCache.set(id, reach);
 
       // Add the reach to the top referrers heap.
-      topReferrers.add({ id, reach });
+      topReferrers.add({ id, score: reach });
 
       // If the heap is full, remove the smallest element.
       if (topReferrers.size > k) {
@@ -159,12 +159,13 @@ class ReferralNetwork implements ReferralNetworkOperations, ReferralMetrics {
       computeReach(user.id);
     }
 
-    // Return the top k referrers.
+    // Return the top k referrers with scores.
     const size = Math.min(k, topReferrers.size);
-    const topReferrersArray: ID[] = new Array(size);
+    const topReferrersArray: UserWithScore[] = new Array(size);
     let index = size - 1;
     while (topReferrers.size > 0) {
-      topReferrersArray[index--] = topReferrers.peek().id;
+      const top = topReferrers.peek();
+      topReferrersArray[index--] = top;
       topReferrers.remove();
     }
 

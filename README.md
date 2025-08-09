@@ -142,8 +142,9 @@ const network = new ReferralNetwork();
   - Time: O(reach(id)) — visits each descendant once
   - Space: O(height) recursion stack
 
-- **`getTopReferrersByReach(k: number): ID[]`**
-  - Returns the IDs of the top `k` users by total referral count (descendants). If `k` exceeds the number of
+- **`getTopReferrersByReach(k: number): UserWithScore[]`**
+  - Returns the top `k` users by total referral count (descendants) with their score equal to total reach. If
+    `k` exceeds the number of
     users, returns all users ordered by reach.
   - Time: O(U + E + U log k) — memoized tree walks plus heap maintenance
     (U = total users, E = total edges / referral links)
@@ -222,10 +223,10 @@ console.log(network.getTotalReferralCount('D')); // 0
 // getTopReferrersByReach(k)
 // Ranked by total descendants (desc): A(5), B(2), C(1), D(0), E(0), F(0)
 console.log(network.getTopReferrersByReach(3));
-// Output: ['A', 'B', 'C']
+// Output: [ { id: 'A', score: 5 }, { id: 'B', score: 2 }, { id: 'C', score: 1 } ]
 
 console.log(network.getTopReferrersByReach(10));
-// Output: ['A','B','C','D','E','F']
+// Output: [ { id: 'A', score: 5 }, { id: 'B', score: 2 }, { id: 'C', score: 1 }, { id: 'D', score: 0 }, ... ]
 
 network.registerUser('X');
 network.registerUser('Y', 'X');

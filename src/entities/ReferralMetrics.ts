@@ -18,9 +18,9 @@ abstract class ReferralMetrics {
    * Gets the top k referrers by total referral count.
    *
    * @param {number} k - The number of referrers to get.
-   * @returns {ID[]} The IDs of the top k referrers.
+   * @returns {UserWithScore[]} The top k referrers with their reach as score.
    */
-  abstract getTopReferrersByReach(k: number): ID[];
+  abstract getTopReferrersByReach(k: number): UserWithScore[];
 
   /**
    * Gets the list of referrers that have referred the maximum number of unique users. Excludes
