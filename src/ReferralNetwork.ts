@@ -1,5 +1,5 @@
 import { ReferralNetworkOperations, User, MinHeap, ReferralMetrics } from './entities';
-import type { ID, UserDetails, UserReach } from './types';
+import type { ID, UserDetails, UserReach, UserWithScore } from './types';
 
 /**
  * A referral network implementation.
@@ -191,6 +191,68 @@ class ReferralNetwork implements ReferralNetworkOperations, ReferralMetrics {
 
     // Return the IDs of the users with the maximum reach.
     return uniqueReach.map((user) => user.id);
+  }
+
+  /** @inheritdoc */
+  getFlowCentrality(): UserWithScore[] {
+    /**
+     * Intuition:
+     *
+     * Given the network is a forest, there can be at most one path between any two users.
+     * Since there can be only one path between any two users, the shortest path is the only
+     * one that exists.
+     *
+     * Flow centrality identifies the users that lie more on the most shortest paths between
+     * any two users. The more the number of paths through an element, the higher its flow
+     * centrality score.
+     *
+     * As links are directed and each user can have only one referrer, the number of paths
+     * through an user is the product of the depth of the user from the root and the number of
+     * descendants of the user.
+     *
+     * Flow Centrality Score (U) = Depth(U) * Descendants(U)
+     */
+
+    if (this._users.size === 0) return [];
+
+    const userDepthFromRoot = new Map<ID, number>();
+    const userDescendantsCount = new Map<ID, number>();
+
+    // Compute depth and total descendants for each node in one pass
+    const computeDepthAndDescendantsCount = (id: ID, depth: number): number => {
+      userDepthFromRoot.set(id, depth);
+
+      const user = this._getUser(id);
+      let totalDescendants = 0;
+      for (const childId of user.referrals) {
+        // Count child itself plus child's descendants
+        totalDescendants += 1 + computeDepthAndDescendantsCount(childId, depth + 1);
+      }
+
+      userDescendantsCount.set(id, totalDescendants);
+      return totalDescendants;
+    };
+
+    for (const user of this._users.values()) {
+      // Skip non-root users.
+      if (user.referrerId) continue;
+
+      // Compute depth and total descendants for the user.
+      computeDepthAndDescendantsCount(user.id, 0);
+    }
+
+    // Compute flow centrality score = depth(v) * descendants(v)
+    const usersWithScore: UserWithScore[] = [];
+    for (const [id, depth] of userDepthFromRoot.entries()) {
+      const descendants = userDescendantsCount.get(id) ?? 0;
+      const score = depth * descendants;
+      usersWithScore.push({ id, score });
+    }
+
+    // Sort by score (desc). Ties are allowed in any order.
+    usersWithScore.sort((a, b) => b.score - a.score);
+
+    return usersWithScore;
   }
 
   /**

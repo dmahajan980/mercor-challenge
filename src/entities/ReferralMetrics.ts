@@ -1,4 +1,4 @@
-import type { ID } from '../types';
+import type { ID, UserWithScore } from '../types';
 
 /**
  * The metrics that a referral network must implement.
@@ -30,6 +30,15 @@ abstract class ReferralMetrics {
    * @returns {ID[]} The IDs of the referrers that have referred the maximum number of unique users.
    */
   abstract getUniqueReachExpansion(): ID[];
+
+  /**
+   * Gets the list of brokers or users who belong to most critical intersections in the network.
+   * Removal of these users would most likely cause the network to fragment into multiple
+   * disconnected components.
+   *
+   * @returns {UserWithScore[]} The users/brokers.
+   */
+  abstract getFlowCentrality(): UserWithScore[];
 }
 
 export { ReferralMetrics };

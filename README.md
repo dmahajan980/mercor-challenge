@@ -152,11 +152,18 @@ const network = new ReferralNetwork();
 - **`getUniqueReachExpansion(): ID[]`**
   - Returns the IDs of referrers who, together, cover the maximum number of unique candidates. Only those users
     who have referred at least one candidate are considered to be a part of this list. The users are ranked by
-    total reach in descending order. 
+    total reach in descending order.
   - Only root users are considered; non-root referrers are excluded.
   - Time: O(U + E + R log R) — scans all users to find roots, computes total descendants per root, then sorts
     qualifying roots (U = total users, E = total edges / referral links, R = number of qualifying roots)
   - Space: O(R) auxiliary plus O(height) recursion stack
+
+- **`getFlowCentrality(): UserWithScore[]`**
+  - Returns all users with a flow-centrality score, sorted by score in descending order. Higher scores indicate
+    users lie more on shortest paths between pairs of users.
+  - Time: O(U + E + U log U) — single DFS per tree to compute depth and descendant counts, then sort all users
+    (U = total users, E = total edges / referral links)
+  - Space: O(U) auxiliary plus O(height) recursion stack
 
 #### Example
 
@@ -184,7 +191,7 @@ const aDirect = network.getDirectReferrals('A'); // ['B','C','D']
 network.deleteUser('C'); // 'C' is removed; its referrals (if any) become roots
 ```
 
-**Network Reach:**
+**Metrics:**
 
 ```ts
 const network = new ReferralNetwork();
@@ -214,8 +221,11 @@ console.log(network.getTotalReferralCount('D')); // 0
 
 // getTopReferrersByReach(k)
 // Ranked by total descendants (desc): A(5), B(2), C(1), D(0), E(0), F(0)
-console.log(network.getTopReferrersByReach(3)); // ['A', 'B', 'C']
-console.log(network.getTopReferrersByReach(10)); // ['A','B','C','D','E','F']
+console.log(network.getTopReferrersByReach(3));
+// Output: ['A', 'B', 'C']
+
+console.log(network.getTopReferrersByReach(10));
+// Output: ['A','B','C','D','E','F']
 
 network.registerUser('X');
 network.registerUser('Y', 'X');
@@ -229,5 +239,11 @@ network.registerUser('Z', 'Y');
 //   / \   \     |
 //  D   E   F    Z
 // Among root users, return those with non-zero total reach, sorted by reach (desc).
-console.log(network.getUniqueReachExpansion()); // ['A', 'X']
+console.log(network.getUniqueReachExpansion());
+// Output: ['A', 'X']
+
+// getFlowCentrality()
+console.log(network.getFlowCentrality());
+// Output: [ { id: 'B', score: 2 }, { id: 'C', score: 1 }, { id: 'Y', score: 1 }, ... ]
+// (Order may vary due to ties)
 ```

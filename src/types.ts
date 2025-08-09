@@ -24,4 +24,13 @@ interface UserReach {
   reach: number;
 }
 
-export type { ID, UserDetails, UserReach };
+/** The score of an user in the referral network based on a metric. */
+interface UserWithScore {
+  /** The ID of the user. */
+  id: ID;
+
+  /** The score of the user. */
+  score: number;
+}
+
+export type { ID, UserDetails, UserReach, UserWithScore };
