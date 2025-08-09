@@ -151,6 +151,8 @@ const network = new ReferralNetwork();
 
 #### Example
 
+**Network Management Operations:**
+
 ```ts
 const network = new ReferralNetwork();
 
@@ -163,12 +165,46 @@ network.registerUser('C', 'A'); // Registers C with A as its referrer
 
 // Link an existing user to a referrer
 network.registerUser('D');
-network.linkUserToReferrer('A', 'D'); // Links D as the referrer of A
+network.linkUserToReferrer('A', 'D'); // Links A as the referrer of D
 
 // Query
-const a = network.getUserDetails('A'); // { id: 'A', referrerId: 'D' }
+const a = network.getUserDetails('A'); // { id: 'A', referrerId: null }
 const aDirect = network.getDirectReferrals('A'); // ['B','C','D']
 
 // Delete
 network.deleteUser('C'); // 'C' is removed; its referrals (if any) become roots
+```
+
+**Network Reach:**
+
+```ts
+const network = new ReferralNetwork();
+
+// Build a small tree
+//      A
+//     / \
+//    B   C
+//   / \   \
+//  D   E   F
+network.registerUser('A');
+network.registerUser('B', 'A');
+network.registerUser('C', 'A');
+network.registerUser('D', 'B');
+network.registerUser('E', 'B');
+network.registerUser('F', 'C');
+
+// getTotalReferralCount(id)
+// A has descendants: B, C, D, E, F => 5
+// B has descendants: D, E => 2
+// C has descendant:  F => 1
+// Leaves (D, E, F) have 0
+console.log(network.getTotalReferralCount('A')); // 5
+console.log(network.getTotalReferralCount('B')); // 2
+console.log(network.getTotalReferralCount('C')); // 1
+console.log(network.getTotalReferralCount('D')); // 0
+
+// getTopReferrersByReach(k)
+// Ranked by total descendants (desc): A(5), B(2), C(1), D(0), E(0), F(0)
+console.log(network.getTopReferrersByReach(3)); // ['A', 'B', 'C']
+console.log(network.getTopReferrersByReach(10)); // ['A','B','C','D','E','F']
 ```
