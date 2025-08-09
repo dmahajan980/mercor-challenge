@@ -171,6 +171,28 @@ class ReferralNetwork implements ReferralNetworkOperations, ReferralMetrics {
     return topReferrersArray;
   }
 
+  /** @inheritdoc */
+  getUniqueReachExpansion(): ID[] {
+    // Users qualifying for unique reach are the ones that do not have a referrer.
+    // At the same time, they must not have zero referrals.
+
+    const uniqueReach: UserReach[] = [];
+    for (const user of this._users.values()) {
+      if (!user.referrerId) {
+        const reach = this.getTotalReferralCount(user.id);
+        if (reach > 0) {
+          uniqueReach.push({ id: user.id, reach });
+        }
+      }
+    }
+
+    // Sort the users by reach in descending order.
+    uniqueReach.sort((a, b) => b.reach - a.reach);
+
+    // Return the IDs of the users with the maximum reach.
+    return uniqueReach.map((user) => user.id);
+  }
+
   /**
    * Detects if there is a path from one user to another in the referral network/graph.
    *

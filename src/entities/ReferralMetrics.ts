@@ -21,6 +21,15 @@ abstract class ReferralMetrics {
    * @returns {ID[]} The IDs of the top k referrers.
    */
   abstract getTopReferrersByReach(k: number): ID[];
+
+  /**
+   * Gets the list of referrers that have referred the maximum number of unique users. Excludes
+   * users who have no referrals since this utility is involved in identifying influencers within
+   * the network.
+   *
+   * @returns {ID[]} The IDs of the referrers that have referred the maximum number of unique users.
+   */
+  abstract getUniqueReachExpansion(): ID[];
 }
 
 export { ReferralMetrics };

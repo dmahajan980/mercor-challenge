@@ -149,6 +149,15 @@ const network = new ReferralNetwork();
     (U = total users, E = total edges / referral links)
   - Space: O(U + k) auxiliary plus O(height) recursion stack
 
+- **`getUniqueReachExpansion(): ID[]`**
+  - Returns the IDs of referrers who, together, cover the maximum number of unique candidates. Only those users
+    who have referred at least one candidate are considered to be a part of this list. The users are ranked by
+    total reach in descending order. 
+  - Only root users are considered; non-root referrers are excluded.
+  - Time: O(U + E + R log R) — scans all users to find roots, computes total descendants per root, then sorts
+    qualifying roots (U = total users, E = total edges / referral links, R = number of qualifying roots)
+  - Space: O(R) auxiliary plus O(height) recursion stack
+
 #### Example
 
 **Network Management Operations:**
@@ -207,4 +216,18 @@ console.log(network.getTotalReferralCount('D')); // 0
 // Ranked by total descendants (desc): A(5), B(2), C(1), D(0), E(0), F(0)
 console.log(network.getTopReferrersByReach(3)); // ['A', 'B', 'C']
 console.log(network.getTopReferrersByReach(10)); // ['A','B','C','D','E','F']
+
+network.registerUser('X');
+network.registerUser('Y', 'X');
+network.registerUser('Z', 'Y');
+
+// getUniqueReachExpansion()
+// Current Network:
+//      A        X
+//     / \       |
+//    B   C      Y
+//   / \   \     |
+//  D   E   F    Z
+// Among root users, return those with non-zero total reach, sorted by reach (desc).
+console.log(network.getUniqueReachExpansion()); // ['A', 'X']
 ```
