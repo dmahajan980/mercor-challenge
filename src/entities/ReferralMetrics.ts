@@ -27,9 +27,9 @@ abstract class ReferralMetrics {
    * users who have no referrals since this utility is involved in identifying influencers within
    * the network.
    *
-   * @returns {ID[]} The IDs of the referrers that have referred the maximum number of unique users.
+   * @returns {UserWithScore[]} The referrers with their unique reach score.
    */
-  abstract getUniqueReachExpansion(): ID[];
+  abstract getUniqueReachExpansion(): UserWithScore[];
 
   /**
    * Gets the list of brokers or users who belong to most critical intersections in the network.

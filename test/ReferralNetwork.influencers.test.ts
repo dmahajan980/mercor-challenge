@@ -22,7 +22,8 @@ describe('ReferralNetwork - Identify Influencers', () => {
       net.registerUser('A');
       net.registerUser('B', 'A');
 
-      expect(net.getUniqueReachExpansion()).toEqual(['A']);
+      expect(net.getUniqueReachExpansion()).toHaveLength(1);
+      expect(net.getUniqueReachExpansion()).toEqual([{ id: 'A', score: 1 }]);
     });
 
     it('should greedily choose referrers to maximize new unique coverage in a simple tree network', () => {
@@ -44,8 +45,9 @@ describe('ReferralNetwork - Identify Influencers', () => {
       // B: {D,E} size 2
       // C: {F} size 1
       // Leaves: {} size 0
-      // Greedy ordering: A first (max gain 5). After A, no one adds new coverage (gain 0).
-      expect(net.getUniqueReachExpansion()).toEqual(['A']);
+      const result = net.getUniqueReachExpansion();
+      expect(result).toHaveLength(1);
+      expect(result).toEqual([{ id: 'A', score: 5 }]);
     });
 
     it('should handle disjoint components by selecting a covering set across components', () => {
@@ -69,8 +71,12 @@ describe('ReferralNetwork - Identify Influencers', () => {
       // X: {Y,Z}
       // Y: {Z}
       // Z: {}
-      // Greedy picks A (gain 3), then X (gain 2). Others add 0 new.
-      expect(net.getUniqueReachExpansion()).toEqual(['A', 'X']);
+      const result = net.getUniqueReachExpansion();
+      expect(result).toHaveLength(2);
+      expect(result).toEqual([
+        { id: 'A', score: 3 },
+        { id: 'X', score: 2 },
+      ]);
     });
 
     it('should resolve overlapping coverage by picking the users that add most uncovered candidates', () => {
@@ -92,7 +98,9 @@ describe('ReferralNetwork - Identify Influencers', () => {
       // C: {E,F} size 2
       // E: {}
       // F: {}
-      expect(net.getUniqueReachExpansion()).toEqual(['A']);
+      const result = net.getUniqueReachExpansion();
+      expect(result).toHaveLength(1);
+      expect(result).toEqual([{ id: 'A', score: 4 }]);
 
       net.registerUser('X');
       net.registerUser('Y', 'X');
@@ -102,7 +110,12 @@ describe('ReferralNetwork - Identify Influencers', () => {
       // C: {E,F} size 2
       // X: {Y,Z} size 2
       // Greedy: pick A first (gain 4). Then X adds 2 new. Order becomes ['A','X'].
-      expect(net.getUniqueReachExpansion()).toEqual(['A', 'X']);
+      const resultPostAddition = net.getUniqueReachExpansion();
+      expect(resultPostAddition).toHaveLength(2);
+      expect(resultPostAddition).toEqual([
+        { id: 'A', score: 4 },
+        { id: 'X', score: 2 },
+      ]);
     });
 
     it('should not include users that add zero new candidates', () => {
@@ -117,9 +130,8 @@ describe('ReferralNetwork - Identify Influencers', () => {
       const result = net.getUniqueReachExpansion();
 
       // Only A contributes new downstream coverage. Others contribute 0.
-      expect(result).toEqual(['A']);
-      expect(result).not.toContain('B');
-      expect(result).not.toContain('C');
+      expect(result).toHaveLength(1);
+      expect(result).toEqual([{ id: 'A', score: 2 }]);
     });
   });
 

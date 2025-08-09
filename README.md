@@ -149,10 +149,10 @@ const network = new ReferralNetwork();
     (U = total users, E = total edges / referral links)
   - Space: O(U + k) auxiliary plus O(height) recursion stack
 
-- **`getUniqueReachExpansion(): ID[]`**
-  - Returns the IDs of referrers who, together, cover the maximum number of unique candidates. Only those users
-    who have referred at least one candidate are considered to be a part of this list. The users are ranked by
-    total reach in descending order.
+- **`getUniqueReachExpansion(): UserWithScore[]`**
+  - Returns referrers who, together, cover the maximum number of unique candidates, each with their score
+    equal to total reach (direct + indirect referrals). Only users who have referred at least one candidate
+    are included. Users are ranked by score in descending order.
   - Only root users are considered; non-root referrers are excluded.
   - Time: O(U + E + R log R) — scans all users to find roots, computes total descendants per root, then sorts
     qualifying roots (U = total users, E = total edges / referral links, R = number of qualifying roots)
@@ -240,7 +240,7 @@ network.registerUser('Z', 'Y');
 //  D   E   F    Z
 // Among root users, return those with non-zero total reach, sorted by reach (desc).
 console.log(network.getUniqueReachExpansion());
-// Output: ['A', 'X']
+// Output: [ { id: 'A', score: 5 }, { id: 'X', score: 2 } ]
 
 // getFlowCentrality()
 console.log(network.getFlowCentrality());
