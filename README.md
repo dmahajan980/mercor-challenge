@@ -6,6 +6,7 @@ Jest, linted with ESLint, and formatted with Prettier.
 
 ## Table of Contents
 
+- [Time Estimation](#time-estimation)
 - [Language and Setup](#language-and-setup)
   - [Commands](#commands)
 - [Running Tests](#running-tests)
@@ -17,6 +18,10 @@ Jest, linted with ESLint, and formatted with Prettier.
   - [`NetworkGrowthSimulation`](#networkgrowthsimulation)
   - [`ReferralBonusOptimizer`](#referralbonusoptimizer)
 - [Influencer Metrics Comparison](#influencer-metrics-comparison)
+
+## Time Estimation
+
+**Total Approximate Time Spent:** 18-20 hours
 
 ## Language and Setup
 
@@ -354,8 +359,9 @@ const optimizer = new ReferralBonusOptimizer(sim, /* maxBonus = 1_000_000, bonus
     - **`days`**: non-negative integer number of days.
     - **`targetHires`**: no of hires expected through referrals.
     - **`adoptionProbFn`**: monotonically non-decreasing function mapping `bonus` to probability `p` in [0, 1].
-    - **`eps`**: precision parameter (reserved; not currently used as I couldn't get enough clarity on why
-                 this is required).
+    - **`eps`**: A precision parameter. **Note**: This parameter is not used in the final implementation. The
+                 optimization is achieved by performing a binary search on discrete bonus values
+                 (e.g., multiples of $10), which doesnot require a floating-point tolerance parameter like `eps`.
   - Time Complexity:
     - Simplified: O(days) assuming max bonus, bonus increments, and referral capacity per user are constant
     - If none of the above are constant: O(log(M/I) * C * D)
