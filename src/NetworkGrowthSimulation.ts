@@ -48,8 +48,8 @@ class NetworkGrowthSimulation {
     // If days is 0, return an empty array.
     if (days === 0) return [];
 
-    // `referrersByCapacity[c]` stores the expected number of referrers who have `c` referrals left to make.
-    // Index 0 is for inactive users.
+    // `referrersByCapacity[c]` stores the expected number of referrers who have `c` referrals left
+    // to make. Index 0 is for inactive users.
     let referrersByCapacity = new Array(this.REFERRAL_CAPACITY_PER_USER + 1).fill(0);
     referrersByCapacity[this.REFERRAL_CAPACITY_PER_USER] = this.INITIAL_REFERRERS;
 
@@ -91,6 +91,86 @@ class NetworkGrowthSimulation {
     }
 
     return dailyCumulativeReferrals;
+  }
+
+  /**
+   * Computes the minimum number of days required for the cumulative expected referrals to
+   * meet or exceed `targetTotal`.
+   *
+   * @param {number} p - The probability of a successful referral per referrer per day.
+   * @param {number} targetTotal - The target number of cumulative referrals.
+   * @returns {number} The minimum number of days required. If the target is considered practically
+   *                   unreachable, returns `Infinity`.
+   * @throws {Error} If `p` is not in [0, 1].
+   * @throws {Error} If `targetTotal` is not a non-negative integer.
+   */
+  public daysToTarget(p: number, targetTotal: number): number {
+    if (p < 0 || p > 1) {
+      throw new Error('Probability p must be between 0 and 1.');
+    }
+
+    if (targetTotal < 0 || !Number.isInteger(targetTotal)) {
+      throw new Error('Target total must be a non-negative integer.');
+    }
+
+    if (p === 0) return Infinity;
+
+    let referrersByCapacity = new Array(this.REFERRAL_CAPACITY_PER_USER + 1).fill(0);
+    referrersByCapacity[this.REFERRAL_CAPACITY_PER_USER] = this.INITIAL_REFERRERS;
+
+    let cumulativeReferrals = 0;
+    let days = 0;
+
+    // Safety break to prevent potential infinite loops in edge cases,
+    // though mathematically, any target is reachable with p > 0.
+    const MAX_SIMULATION_DAYS = 1e7;
+
+    while (cumulativeReferrals < targetTotal) {
+      if (days >= MAX_SIMULATION_DAYS) {
+        // Target is considered practically unreachable if not met by this point.
+        return Infinity;
+      }
+
+      days++;
+
+      const nextDayReferrersByCapacity = new Array(this.REFERRAL_CAPACITY_PER_USER + 1).fill(0);
+      let todaysNewReferrals = 0;
+
+      for (
+        let userReferralCapacity = 1;
+        userReferralCapacity <= this.REFERRAL_CAPACITY_PER_USER;
+        userReferralCapacity++
+      ) {
+        const referrersInBucket = referrersByCapacity[userReferralCapacity];
+        if (referrersInBucket === 0) continue;
+
+        const successfulReferrals = referrersInBucket * p;
+        const unsuccessfulReferrals = referrersInBucket * (1 - p);
+
+        todaysNewReferrals += successfulReferrals;
+
+        nextDayReferrersByCapacity[userReferralCapacity - 1] += successfulReferrals;
+        nextDayReferrersByCapacity[userReferralCapacity] += unsuccessfulReferrals;
+      }
+
+      // If no new referrals are generated and the system has no potential referrers,
+      // it has stalled. This is a safeguard.
+      if (todaysNewReferrals < 1e-9) {
+        const totalActiveReferrers = referrersByCapacity
+          .slice(1)
+          .reduce((sum, count) => sum + count, 0);
+        if (totalActiveReferrers < 1e-9) {
+          return Infinity;
+        }
+      }
+
+      nextDayReferrersByCapacity[this.REFERRAL_CAPACITY_PER_USER] += todaysNewReferrals;
+
+      referrersByCapacity = nextDayReferrersByCapacity;
+      cumulativeReferrals += todaysNewReferrals;
+    }
+
+    return days;
   }
 }
 

@@ -8,41 +8,41 @@ describe('ReferralNetwork - Referral Graph', () => {
   });
 
   describe('User details', () => {
-    it("can query for an user's details", () => {
+    it("should query for an user's details", () => {
       network.registerUser('A');
       expect(network.getUserDetails('A')).toBeDefined();
     });
 
-    it('throws error when querying for non-existent user', () => {
+    it('should throw error when querying for non-existent user', () => {
       expect(() => network.getUserDetails('NOPE')).toThrow();
     });
   });
 
   describe('Direct referrals', () => {
-    it('can get direct referrals for an user', () => {
+    it('should get direct referrals for an user', () => {
       network.registerUser('A');
       network.registerUser('B', 'A');
       network.registerUser('C', 'A');
       expect(network.getDirectReferrals('A')).toEqual(['B', 'C']);
     });
 
-    it('returns empty list when getting direct referrals for an user with no referrals', () => {
+    it('should return empty list when getting direct referrals for an user with no referrals', () => {
       network.registerUser('A');
       expect(network.getDirectReferrals('A')).toEqual([]);
     });
 
-    it('throws error when getting direct referrals for non-existent user', () => {
+    it('should throw error when getting direct referrals for non-existent user', () => {
       expect(() => network.getDirectReferrals('NOPE')).toThrow();
     });
   });
 
   describe('Registering users', () => {
-    it('can add an user without a referrer', () => {
+    it('should add an user without a referrer', () => {
       network.registerUser('A');
       expect(network.getUserDetails('A')).toBeDefined();
     });
 
-    it('can add an user with a referrer', () => {
+    it('should add an user with a referrer', () => {
       network.registerUser('A');
       network.registerUser('B', 'A');
 
@@ -51,46 +51,46 @@ describe('ReferralNetwork - Referral Graph', () => {
       expect(details?.referrerId).toBe('A');
     });
 
-    it('cannot register an user with self as referrer', () => {
+    it('should throw error when registering an user with self as referrer', () => {
       expect(() => network.registerUser('A', 'A')).toThrow();
     });
 
-    it('cannot register an user with an invalid referrer/user', () => {
+    it('should throw error when registering an user with an invalid referrer/user', () => {
       expect(() => network.registerUser('A', 'B')).toThrow();
     });
 
-    it('cannot re-register an user', () => {
+    it('should throw error when re-registering an user', () => {
       network.registerUser('A');
       expect(() => network.registerUser('A')).toThrow();
     });
   });
 
   describe('Linking users', () => {
-    it('can link an user to a referrer', () => {
+    it('should link an user to a referrer', () => {
       network.registerUser('A');
       network.registerUser('B');
       network.linkUserToReferrer('A', 'B');
       expect(network.getUserDetails('B')?.referrerId).toBe('A');
     });
 
-    it('cannot set self as a referrer', () => {
+    it('should throw error when setting self as a referrer', () => {
       network.registerUser('A');
       expect(() => network.linkUserToReferrer('A', 'A')).toThrow();
     });
 
-    it('cannot link an user to a non-existing referrer/user', () => {
+    it('should throw error when linking an user to a non-existing referrer/user', () => {
       network.registerUser('A');
       expect(() => network.linkUserToReferrer('B', 'A')).toThrow();
     });
 
-    it('cannot link an user to a referrer that is already linked to another user', () => {
+    it('should throw error when linking an user to a referrer that is already linked to another user', () => {
       network.registerUser('A');
       network.registerUser('B');
       network.linkUserToReferrer('A', 'B');
       expect(() => network.linkUserToReferrer('A', 'C')).toThrow();
     });
 
-    it('cannot link if the linkage makes the network cyclic', () => {
+    it('should throw error when linking if the linkage makes the network cyclic', () => {
       network.registerUser('A');
       network.registerUser('B');
       network.registerUser('C');
@@ -99,7 +99,7 @@ describe('ReferralNetwork - Referral Graph', () => {
       expect(() => network.linkUserToReferrer('C', 'A')).toThrow();
     });
 
-    it('cannot link an user that already has a referrer', () => {
+    it('should throw error when linking an user that already has a referrer', () => {
       network.registerUser('A');
       network.registerUser('B');
       network.registerUser('C');
@@ -109,7 +109,7 @@ describe('ReferralNetwork - Referral Graph', () => {
   });
 
   describe('Deleting users', () => {
-    it("deleting an user removes them from their referrer and nullifies their referrals' referrers", () => {
+    it("should delete an user and remove them from their referrer and nullify their referrals' referrers", () => {
       network.registerUser('A');
       network.registerUser('B', 'A');
       network.registerUser('C', 'B');
@@ -132,11 +132,11 @@ describe('ReferralNetwork - Referral Graph', () => {
       expect(network.getUserDetails('C').referrerId).toBeNull();
     });
 
-    it('deleteUser throws for non-existent user', () => {
+    it('should throw error when deleting a non-existent user', () => {
       expect(() => network.deleteUser('MISSING')).toThrow();
     });
 
-    it('deleting a root with multiple referrals makes them roots and preserves their subtrees', () => {
+    it('should delete a root with multiple referrals and make them sub-components', () => {
       network.registerUser('A');
       network.registerUser('B', 'A');
       network.registerUser('C', 'A');

@@ -279,6 +279,19 @@ grow over time.
   - Time: O(days × capacity) - capacity refers to referral capacity per user (defaults to 10)
   - Space: O(capacity)
 
+- **`daysToTarget(p: number, targetTotal: number): number`**
+  - Returns the minimum number of days required for the cumulative expected referrals to meet or exceed
+    `targetTotal`.
+  - Returns `Infinity` if the target is considered practically unreachable (e.g., `p === 0`).
+  - Parameters:
+    - `p`: probability of a successful referral per referrer per day, in [0, 1].
+    - `targetTotal`: non-negative integer target for cumulative referrals.
+  - Throws error if:
+    - `p` is not within [0, 1].
+    - `targetTotal` is negative or not an integer.
+  - Time: O(days to target × capacity) - capacity refers to referral capacity per user (defaults to 10)
+  - Space: O(capacity)
+
 ```ts
 import { NetworkGrowthSimulation } from './src/NetworkGrowthSimulation';
 
@@ -291,6 +304,12 @@ const sim = new NetworkGrowthSimulation();
 const cumulative = sim.simulate(0.2, 7);
 console.log(cumulative);
 // Output: [20, 44, ...]
+
+// daysToTarget(p: number, targetTotal: number): number
+// Minimum number of days needed to reach or exceed the target in expectation
+const daysNeeded = sim.daysToTarget(0.2, 1000);
+console.log(daysNeeded);
+// Output: 14
 ```
 
 ## Influencer Metrics
