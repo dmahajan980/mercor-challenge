@@ -1,3 +1,5 @@
+import { SimulationOperations } from "./entities";
+
 /**
  * Abstract model for simulating referral-network growth over time.
  *
@@ -7,7 +9,7 @@
  * - Expected contributions saturate at the lifetime capacity (no referrer exceeds
  *   `REFERRAL_CAPACITY_PER_USER` total referrals in expectation).
  */
-class NetworkGrowthSimulation {
+class NetworkGrowthSimulation implements SimulationOperations {
   /** The number of referrers to start with. */
   public readonly INITIAL_REFERRERS: number;
 
@@ -26,16 +28,8 @@ class NetworkGrowthSimulation {
     this.REFERRAL_CAPACITY_PER_USER = referrerCapacityPerUser ?? 10;
   }
 
-  /**
-   * Runs the simulation for a given success probability per referrer per day and number of days.
-   *
-   * @param {number} p - The probability of a successful referral per referrer per day.
-   * @param {number} days - The number of days to simulate.
-   * @returns {number[]} An array of cumulative expected referrals by the end of each day.
-   * @throws {Error} If `p` is not in [0, 1] or `days` is not a non-negative integer.
-   * @throws {Error} If `days` is negative.
-   */
-  public simulate(p: number, days: number): number[] {
+  /** @inheritdoc */
+  simulate(p: number, days: number): number[] {
     // Validate inputs.
     if (p < 0 || p > 1) {
       throw new Error('Probability p must be between 0 and 1.');
@@ -93,18 +87,8 @@ class NetworkGrowthSimulation {
     return dailyCumulativeReferrals;
   }
 
-  /**
-   * Computes the minimum number of days required for the cumulative expected referrals to
-   * meet or exceed `targetTotal`.
-   *
-   * @param {number} p - The probability of a successful referral per referrer per day.
-   * @param {number} targetTotal - The target number of cumulative referrals.
-   * @returns {number} The minimum number of days required. If the target is considered practically
-   *                   unreachable, returns `Infinity`.
-   * @throws {Error} If `p` is not in [0, 1].
-   * @throws {Error} If `targetTotal` is not a non-negative integer.
-   */
-  public daysToTarget(p: number, targetTotal: number): number {
+  /** @inheritdoc */
+  daysToTarget(p: number, targetTotal: number): number {
     if (p < 0 || p > 1) {
       throw new Error('Probability p must be between 0 and 1.');
     }
