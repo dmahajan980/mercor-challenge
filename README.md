@@ -248,3 +248,22 @@ console.log(network.getFlowCentrality());
 // Output: [ { id: 'B', score: 2 }, { id: 'C', score: 1 }, { id: 'Y', score: 1 }, ... ]
 // (Order may vary due to ties)
 ```
+
+## Influencer Metrics
+
+- **Top Referrers by Reach**
+  - Identifies individuals with the largest total number of downstream referrals.
+  - **Business Scenario:** Useful for mass-marketing announcements where the goal is maximum distribution
+    of the news. This metric would help find referrers who can spread the message to the largest possible
+    audience, irrespective of overlaps.
+
+- **Unique reach expansion**
+  - Identifies group of influencrs who collectively have the maximum number of unique users.
+  - **Business Scenario:** Useful for budget-constrained campaigns. This metric would help select a small,
+    efficient group of influencers who reach distinct audiences. This helps maximizing return on investment
+    by ensuring multiple people reaching to the same potential lead are not paid.
+
+- **Flow centrality**
+  - Identifies the critical users that act as brokers or bridges holding the network together.
+  - **Business Scenario:** Useful for identifying moderators who are highly engaged/connected. These users
+    are the best source of feedback from multiple users, as they are connected to all of them.
