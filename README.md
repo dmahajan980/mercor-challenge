@@ -90,6 +90,8 @@ achieving the same with BFS, DFS, etc.
 
 ### API Design
 
+#### ReferralNetwork
+
 The `ReferralNetwork` models a directed acyclic forest. Create an instance and use the methods below to manage users and links.
 
 ```ts
@@ -98,7 +100,7 @@ import { ReferralNetwork } from './src/ReferralNetwork';
 const network = new ReferralNetwork();
 ```
 
-#### Methods
+**Methods:**
 
 - **`registerUser(id?: ID, referrerId?: ID): void`**
   - Registers a new user. If `id` is omitted, a random UUID is generated internally.
@@ -166,9 +168,9 @@ const network = new ReferralNetwork();
     (U = total users, E = total edges / referral links)
   - Space: O(U) auxiliary plus O(height) recursion stack
 
-#### Example
+**Example:**
 
-**Network Management Operations:**
+**1. Network Management Operations:**
 
 ```ts
 const network = new ReferralNetwork();
@@ -192,7 +194,7 @@ const aDirect = network.getDirectReferrals('A'); // ['B','C','D']
 network.deleteUser('C'); // 'C' is removed; its referrals (if any) become roots
 ```
 
-**Metrics:**
+**2. Metrics:**
 
 ```ts
 const network = new ReferralNetwork();
@@ -247,6 +249,48 @@ console.log(network.getUniqueReachExpansion());
 console.log(network.getFlowCentrality());
 // Output: [ { id: 'B', score: 2 }, { id: 'C', score: 1 }, { id: 'Y', score: 1 }, ... ]
 // (Order may vary due to ties)
+```
+
+#### NetworkGrowthSimulation
+
+The `NetworkGrowthSimulation` is a small, deterministic expectation model to forecast how the network might
+grow over time.
+
+**Model assumptions:**
+
+- Initialized with 100 active referrers (can be configured).
+- Default referral capacity per user is 10 (can be configured).
+- Each time step is one whole day; a new referral becomes an active referrer starting the next day.
+- Each active referrer produces a successful referral with probability `p` per day (in expectation).
+- No referrer exceeds a lifetime capacity of referrals; contributions saturate at
+  `REFERRAL_CAPACITY_PER_USER`.
+
+**Methods:**
+
+- **`simulate(p: number, days: number): number[]`**
+  - Returns an array of numbers, where the element at index i is the cumulative total expected
+    referrals at the end of day i.
+  - Parameters:
+    - `p` represents the probability of a successful referral that can be made by a referrer per day.
+    - `days` represents the number of days to simulate.
+  - Throws error if:
+    - `p` is not within the range of [0, 1].
+    - `days` is negative.
+  - Time: O(days × capacity) - capacity refers to referral capacity per user (defaults to 10)
+  - Space: O(capacity)
+
+```ts
+import { NetworkGrowthSimulation } from './src/NetworkGrowthSimulation';
+
+// constructor(initialReferrerCount?: number, referrerCapacityPerUser?: number)
+// Defaults: 100 initial referrers, capacity 10 per user
+const sim = new NetworkGrowthSimulation();
+
+// simulate(p: number, days: number): number[]
+// Returns cumulative expected referrals by the end of each day (length = days)
+const cumulative = sim.simulate(0.2, 7);
+console.log(cumulative);
+// Output: [20, 44, ...]
 ```
 
 ## Influencer Metrics
